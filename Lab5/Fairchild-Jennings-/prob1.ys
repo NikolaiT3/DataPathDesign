@@ -1,0 +1,36 @@
+/* $begin code-yso */
+/* $begin code-ysa */
+# execution begins at address 0
+	.pos	0
+init:
+	irmovl	Stack, %esp		# set up stack pointer
+	irmovl	Stack, %ebp		# set up base (frame) pointer	
+	jmp		Main			# execute main program
+
+Main:
+	# set up int i and int j, per our assumption that i and j were initialized already in the c code fragment somehow
+	irmovl	$4, %eax		# put 4 into eax (int i)
+	irmovl	$6, %ecx		# put 6 into ecx (int j)
+	irmovl	$1, %edx		# put 1 in edx, for incrementing (a constant, basically)
+	irmovl	$5, %ebx		# put 5 into ebx, to add in the else block
+	rrmovl	%eax, %esi		# make a copy of i into esi (temp)
+	subl	%ecx, %esi		# is 4 > 6? will set sign bit to positive if true
+	jg		IF				# if 4 > 6, then go to IF, else...
+	irmovl	$0, %eax		# replace i's value with 0
+	addl	%edx, %ecx		# increment j by 1
+	pushl	%eax			# push i onto stack
+	pushl	%ecx			# push j onto stack
+	jmp		End				# end our control structure
+
+IF:
+	addl	%ebx, %eax		# add 5 to int i (%eax)
+	jmp		End 			# end our control structure
+
+#move on to other operations, but for this fragment, halt
+End:
+	halt
+
+	.pos	0x100
+Stack:		# stack goes here
+/* $end code-ysa */
+/* $end code-yso */

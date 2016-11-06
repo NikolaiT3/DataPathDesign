@@ -1,0 +1,40 @@
+	.pos 0
+init:
+	irmovl	Stack, %esp
+	irmovl	Stack, %ebp
+	jmp		Main
+
+Main:
+	# main stuff
+	irmovl	$0x28, %edi	# int i = 40
+	call	very_fast_function
+	# printf?
+
+very_fast_function:
+	irmovl	$1, %esi 		# for incrementing
+	irmovl	$0, %edx		# incrementer for multiply64
+	irmovl	$1024, %ebx		# for comparing
+	# comparison logic
+	rrmovl	%edi, %eax		# store a copy of i for modifying
+	call 	multiply64		# multiply temp i by 64
+	addl	%esi, %eax		# add 1 to temp i
+	subl	%ebx, %eax		# i - 1024
+	# if i - 1024 < 0
+	jle		L1
+	#else
+	ret
+
+multiply64:	# because I don't have shifts or multiplication instructions, i have to be inefficient and loop 64 times...
+	irmovl	$63, %ecx		# put 63 into edi for comparison testing
+	addl	%edi, %eax		# temp i = constant i + temp i
+	addl	%esi, %edx		# ++incrementer
+	subl	%edx, %ecx		# 64(ecx) - incrementer -> ecx
+	jg	 	multiply64		# loop if incrementer < 64
+	ret 					# else return
+
+L1:	#if
+	addl	%esi, %edi		# i + 1
+	ret
+
+	.pos	0x100
+Stack:	# stack goes here

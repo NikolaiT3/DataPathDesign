@@ -1,0 +1,37 @@
+/* $begin code-yso */
+/* $begin code-ysa */
+# execution begins at address 0
+	.pos	0
+init:
+	irmovl	Stack, %esp		# set up stack pointer
+	irmovl	Stack, %ebp		# set up base (frame) pointer	
+	jmp		Main			# execute main program
+
+Main:
+	# set up int i and int j, per our assumption that i and j were initialized already in the c code fragment somehow
+	irmovl	$0, %ccnt		# put 0 into ccnt (int i)
+	call	Loop			# go into for loop
+	halt
+
+Loop:
+	irmovl	$4294967295, %edi	# put 4294967295 into edi for condition testing every loop
+	irmovl	$1, %esi			# change temp (esi) to 1
+	irmovl	$1, %esi			# change temp (esi) back to 1 to prepare to increment
+	# ++i
+	addl	%esi, %ccnt			# ++i
+	# ?( i < 4294967295 )
+	rrmovl	%ccnt, %ebx			# copy i to ebx to test it against 4294967295
+	subl	%edi, %ebx			# copy of i - 5 (edi), store in edi. sign bit will be 1 for i = 1...4
+	# true
+	jl		Loop 				# loop so long as i < 4294967295
+	# false
+	jmp	Reassign				# jmp when i >= 4294967295
+
+Reassign:
+	irmovl	%0, %ccnt		# set ccnt (int i) to 0
+	jmp		Loop 			# go to back to loop
+
+	.pos	0x100
+Stack:		# stack goes here
+/* $end code-ysa */
+/* $end code-yso */

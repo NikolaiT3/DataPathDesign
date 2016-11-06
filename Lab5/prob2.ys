@@ -1,0 +1,42 @@
+/* $begin prob2-yso */
+/* $begin prob2-ysa */
+# execution begins at address 0
+	.pos	0
+init:
+	irmovl	Stack, %esp		# set up stack pointer
+	irmovl	Stack, %ebp		# set up base (frame) pointer	
+	jmp		Main			# execute main program
+
+Main:
+	# set up int i and int j, per our assumption that i and j were initialized already in the c code fragment somehow
+	irmovl	$0, %eax		# put 0 into eax (int i)
+	irmovl	$0, %ecx		# put 0 into ecx (int j)
+	irmovl	$0, %edx		# put 0 into edx (int k)
+	call	Loop			# go into for loop
+	halt
+
+Loop:
+	irmovl	$5, %edi		# put 5 into edi for condition testing every loop
+	# j = i * 2		j = i + i
+	rrmovl	%eax, %esi		# put eax (int i) into esi (temp)
+	addl	%eax, %esi		# add temp (esi, int i) and int i (eax), store into temp (esi)
+	rrmovl	%esi, %ecx		# copy temp (esi) into int j (ecx)
+	# k = j + 1
+	irmovl	$1, %esi		# change temp (esi) to 1
+	addl	%ecx, %esi		# add 1 (temp, esi) to int j (ecx), store in temp (esi)
+	rrmovl	%esi, %edx		# copy temp (esi) into k (edx)
+	irmovl	$1, %esi		# change temp (esi) back to 1 to prepare to increment
+	# ++i
+	addl	%esi, %eax		# ++i
+	# ?( i < 5 )
+	rrmovl	%eax, %ebx		# copy i to ebx to test it against 5
+	subl	%edi, %ebx		# copy of i - 5 (edi), store in edi. sign bit will be 1 for i = 1...4
+	# true
+	jl		Loop 			# loop so long as i < 5
+	# false
+	ret						# return when i >= 5
+
+	.pos	0x100
+Stack:		# stack goes here
+/* $end prob2-ysa */
+/* $end prob2-yso */
